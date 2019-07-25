@@ -1,3 +1,10 @@
+import { SPHttpClient } from "@microsoft/sp-http";
+
 export interface IHelloWorldProps {
-  description: string;
+  siteurl: string;
+  slidervalue: number;
+  filtervalue: string;
+  spWebUrl: string;
+  spHttpClient: SPHttpClient;
+  listdropdown: string;
 }

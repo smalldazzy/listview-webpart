@@ -1,3 +1,5 @@
+import { SPHttpClient } from "@microsoft/sp-http";
+
 export interface IListItem{
     ID:string;
     Title:string;
@@ -12,5 +14,10 @@ export interface IListItem{
   }
 
 export interface IProps {
-    description: string;
+    siteurl: string;
+    slidervalue: number;
+    filtervalue: string;
+    spWebUrl: string;
+    spHttpClient: SPHttpClient;
+    listdropdown: string;
 }
