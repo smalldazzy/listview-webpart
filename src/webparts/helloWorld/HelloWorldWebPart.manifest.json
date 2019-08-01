@@ -17,8 +17,8 @@
     "group": { "default": "Other" },
     "title": { "default": "HelloWorld" },
     "description": { "default": "HelloWorld description" },
-    "officeFabricIconFontName": "Airplane",
-    // "iconImageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Motorkontrollleuchte.svg/1200px-Motorkontrollleuchte.svg.png",
+    // "officeFabricIconFontName": "Airplane",
+    "iconImageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Motorkontrollleuchte.svg/1200px-Motorkontrollleuchte.svg.png",
     "properties": {
       "description": "HelloWorld"
     }

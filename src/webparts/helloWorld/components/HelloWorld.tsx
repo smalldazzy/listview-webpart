@@ -62,19 +62,21 @@ export default class HelloWorld extends React.Component<IHelloWorldProps, any> {
   public componentDidMount() {
     this.getData();
   }
-  public componentDidUpdate(){    
+  public componentWillReceiveProps(){
+    this.getData();
   }
  
   private getData(): void {
     let uri = this.props.siteurl || 'sites/dev1';
     let guid = this.props.listdropdown || '76df1868-1ae3-4efb-9653-0f4372392049';
     let top = this.props.slidervalue || 5;
+    let filtervalue = this.props.filtervalue || '';
     console.log(top);
     let wep = new Web('https://cupcuper.sharepoint.com/'+uri);
     wep.lists.filter('Hidden eq false').get().then((li)=>console.log(li));
     // pnp.sp.web.lists.filter('Hidden eq false').get().then((list)=> this.setState({options:list})).then(()=>console.log(this.state));
     // pnp.sp.web.lists.getByTitle(`MyList`).items.get().then
-    /*pnp.sp.web*/wep.lists.getById(guid).items.top(top).get().then
+    wep.lists.getById(guid).items.filter(filtervalue).top(top).get().then
     // 76df1868-1ae3-4efb-9653-0f4372392049
       ((response) => {
         console.log(response);
