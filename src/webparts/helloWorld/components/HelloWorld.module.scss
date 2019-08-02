@@ -10,7 +10,7 @@
   .row {
     @include ms-Grid-row;
     @include ms-fontColor-white;
-    background-color: "[theme: themeDark, default: #005a9e]";//$ms-color-themeDark;
+    background-color: "[theme: themeDark, default: #005a9e]";
     padding: 20px;
   }
 

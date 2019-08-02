@@ -16,7 +16,7 @@ export default class HelloWorld extends React.Component<IHelloWorldProps, any> {
       options: [], 
       columns:[],
       rawitems:[]
-    }
+    };
   }
   public render(): React.ReactElement<IHelloWorldProps> {
     console.log(this.props.spWebUrl.split('.com/')[1]);
@@ -52,11 +52,8 @@ export default class HelloWorld extends React.Component<IHelloWorldProps, any> {
                   </tbody>
                 </table> */}
               </div>
-              <p className={styles.description}>{escape(this.props.siteurl)}</p>
-              <p className={styles.description}>{this.props.slidervalue}</p>
+              <p className={styles.description}>Site url {escape(this.props.siteurl)}</p>
               <p className={styles.description}>{this.props.filtervalue}</p>
-
-
             </div>
           </div>
           
@@ -105,22 +102,16 @@ export default class HelloWorld extends React.Component<IHelloWorldProps, any> {
     let fieldfiltervalue = this.props.fieldfilter || '';
     let fieldfiltervalue1 = fieldfiltervalue.split(';');
     let columns = this.columsCreate(fieldfiltervalue.split(';'));
-    console.log(columns);
     this.setState({columns: columns});
-    // fieldfiltervalue = fieldfiltervalue.split(';').join("','");
-    // console.log(fieldfiltervalue);
     let wep = new Web(/*'https://cupcuper.sharepoint.com/'+*/uri);
     wep.lists.filter('Hidden eq false').get().then((li) => console.log(li));
-    // pnp.sp.web.lists.filter('Hidden eq false').get().then((list)=> this.setState({options:list})).then(()=>console.log(this.state));
-    // pnp.sp.web.lists.getByTitle(`MyList`).items.get().then
-    wep.lists.getById(guid).items./*filter(filtervalue).select(...fieldfiltervalue1).*/top(top).get().then
-      // 76df1868-1ae3-4efb-9653-0f4372392049
+    wep.lists.getById(guid).items.filter(filtervalue).select(...fieldfiltervalue1).top(top).get().then
       ((response) => {
         console.log(response);
         let store = response.map(item => new ListItem(item));
         this.setState({ items: store, rawitems: response });
         console.log('writing');
       }
-      ).then(() => console.log(this.state))
+      ).then(() => console.log(this.state));
   }
 }

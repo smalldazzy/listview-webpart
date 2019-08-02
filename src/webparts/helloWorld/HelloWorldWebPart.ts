@@ -14,7 +14,7 @@ import { IHelloWorldProps } from './components/IHelloWorldProps';
 import { IODataList } from '@microsoft/sp-odata-types';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { PropertyFieldListPicker, PropertyFieldListPickerOrderBy } from '@pnp/spfx-property-controls/lib/PropertyFieldListPicker';
-import pnp,{ sp } from 'sp-pnp-js';
+import pnp from 'sp-pnp-js';
 
 export interface IHelloWorldWebPartProps {
   siteurl: string;
@@ -28,9 +28,10 @@ export interface IHelloWorldWebPartProps {
 export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorldWebPartProps> {
   private dropdownOptions: IPropertyPaneDropdownOption[];
   private listsFetched: boolean;
+  private urlvalid: boolean = true;
   public render(): void {
     const element: React.ReactElement<IHelloWorldProps> = React.createElement(
-      HelloWorld, 
+      HelloWorld,
       {
         siteurl: this.properties.siteurl,
         slidervalue: this.properties.slider,
@@ -52,38 +53,48 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
   protected get dataVersion(): Version {
     return Version.parse('1.0');
   }
-  private fetchLists(): Promise<any> {
-    // return this.context.spHttpClient.get(url, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
-    return pnp.sp.web.lists.filter('Hidden eq false').get().then((response)=> { 
-    if (response.ok) {
-        return response.json();
-      } else {
-        console.log("WARNING - failed to hit URL. Error = " + response.statusText);
-        return null;
-      }
+  private async fetchLists(): Promise<any> {
+    const pnp = await import(/* webpackChunkName: "pnplib" */ 'sp-pnp-js').then((pnp) => {
+      // return this.context.spHttpClient.get(url, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
+      return pnp.sp.web.lists.get().then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          console.log("WARNING - failed to hit URL. Error = " + response.statusText);
+          return null;
+        }
+      });
     });
+    console.log(pnp);
   }
-
+  private UrlExists(url: string) {
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status != 404;
+  }
   private fetchOptions(): Promise<IPropertyPaneDropdownOption[]> {
+    // this.urlvalid = this.UrlExists(this.properties.siteurl);
+    // console.log(this.properties.siteurl);
     // var url = this.context.pageContext.web.absoluteUrl + `/_api/web/lists?$filter=Hidden eq false`;
     // var url = `https://cupcuper.sharepoint.com/sites/dev1/_api/web/lists?$filter=Hidden%20eq%20false`;
     return this.fetchLists().then((response) => {
       var options: Array<IPropertyPaneDropdownOption> = new Array<IPropertyPaneDropdownOption>();
+      if (response.ok) {
       response.value.map((list: IODataList) => {
         console.log("Found list with title = " + list.Title);
         options.push({ key: list.Id, text: list.Title });
       });
-
+    }
       return options;
     });
   }
- 
+
   // protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
 
   // }
-  // import(/* webpackChunkName: "strings" */ 'HelloWorldWebPartStrings').then((strings)=>{
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    
+
     if (!this.listsFetched) {
       this.fetchOptions().then((response) => {
         this.dropdownOptions = response;
@@ -101,7 +112,7 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('webparttitle',{
+                PropertyPaneTextField('webparttitle', {
                   label: strings.WebpartLabel,
                 }),
                 PropertyPaneTextField('siteurl', {
@@ -115,10 +126,6 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
                   max: 20,
                   value: 5
                 }),
-                // PropertyPaneDropdown('list', {
-                //   label: 'Lists',
-                //   options: this.dropdownOptions
-                // }),
                 PropertyPaneTextField('odatafilter', {
                   label: strings.ODataLabel
 
@@ -128,7 +135,7 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
                   label: strings.SListLabel,
                   includeHidden: false,
                   orderBy: PropertyFieldListPickerOrderBy.Title,
-                  disabled: false,
+                  disabled: !this.urlvalid,
                   onPropertyChange: this.onPropertyPaneFieldChanged.bind(this),
                   properties: this.properties,
                   context: this.context,
@@ -137,7 +144,7 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
                   key: 'listPickerFieldId',
                   webAbsoluteUrl: this.properties.siteurl
                 }),
-                PropertyPaneTextField('fieldfilter',{
+                PropertyPaneTextField('fieldfilter', {
                   label: 'Field filter',
                   placeholder: 'Enter field filter',
                   value: 'Id;Title'
@@ -150,5 +157,4 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
       ]
     };
   }
-  // });
 }
