@@ -7,4 +7,6 @@ export interface IHelloWorldProps {
   spWebUrl: string;
   spHttpClient: SPHttpClient;
   listdropdown: string;
+  fieldfilter: string;
+  webparttitle: string;
 }

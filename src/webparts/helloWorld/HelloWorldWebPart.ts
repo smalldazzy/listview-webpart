@@ -14,12 +14,17 @@ import HelloWorld from './components/HelloWorld';
 import { IHelloWorldProps } from './components/IHelloWorldProps';
 import { IODataList } from '@microsoft/sp-odata-types';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { PropertyFieldListPicker, PropertyFieldListPickerOrderBy } from '@pnp/spfx-property-controls/lib/PropertyFieldListPicker';
+import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
+
 
 export interface IHelloWorldWebPartProps {
   siteurl: string;
   slider: number;
   odatafilter: string;
   listdropdown: string;
+  fieldfilter: string;
+  webparttitle: string;
 }
 
 export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorldWebPartProps> {
@@ -42,7 +47,9 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
         filtervalue: this.properties.odatafilter,
         spWebUrl: this.context.pageContext.web.absoluteUrl,
         spHttpClient: this.context.spHttpClient,
-        listdropdown: this.properties.listdropdown
+        listdropdown: this.properties.listdropdown,
+        fieldfilter: this.properties.fieldfilter,
+        webparttitle: this.properties.webparttitle
       }
     );
 
@@ -79,6 +86,7 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
       return options;
     });
   }
+ 
   // protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
 
   // }
@@ -101,24 +109,46 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
             {
               groupName: strings.BasicGroupName,
               groupFields: [
+                PropertyPaneTextField('webparttitle',{
+                  label: strings.WebpartLabel,
+                }),
                 PropertyPaneTextField('siteurl', {
                   label: strings.SiteUrlLabel,
                   placeholder: 'Enter server url',
                   value: this.context.pageContext.web.absoluteUrl.split('.com/')[1]
                 }),
                 PropertyPaneSlider('slider', {
-                  label: 'Top',
+                  label: strings.SliderLabel,
                   min: 1,
                   max: 20,
                   value: 5
                 }),
-                PropertyPaneDropdown('listdropdown', {
-                  label: 'Lists',
-                  options: this.dropdownOptions
-                }),
+                // PropertyPaneDropdown('list', {
+                //   label: 'Lists',
+                //   options: this.dropdownOptions
+                // }),
                 PropertyPaneTextField('odatafilter', {
-                  label: 'OData filter'
+                  label: strings.ODataLabel
 
+
+                }),
+                PropertyFieldListPicker('listdropdown', {
+                  label: strings.SListLabel,
+                  includeHidden: false,
+                  orderBy: PropertyFieldListPickerOrderBy.Title,
+                  disabled: false,
+                  onPropertyChange: this.onPropertyPaneFieldChanged.bind(this),
+                  properties: this.properties,
+                  context: this.context,
+                  onGetErrorMessage: null,
+                  deferredValidationTime: 0,
+                  key: 'listPickerFieldId',
+                  webAbsoluteUrl: this.properties.siteurl
+                }),
+                PropertyPaneTextField('fieldfilter',{
+                  label: 'Field filter',
+                  placeholder: 'Enter field filter',
+                  value: 'Id;Title'
 
                 })
               ]
