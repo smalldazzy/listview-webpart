@@ -4,11 +4,8 @@ import { IHelloWorldProps } from './IHelloWorldProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import pnp, { Web } from 'sp-pnp-js';
 import { ListItem } from './ListItem';
-import { IProps, IListItem, IListItem2 } from './Interfaces';
-import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
-import { IPropertyPaneDropdownOption } from '@microsoft/sp-property-pane';
-import { IODataList } from '@microsoft/sp-odata-types';
-import { DetailsList, DetailsListLayoutMode, Selection, SelectionMode, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
+import { IProps} from './Interfaces';
+import { DetailsList, DetailsListLayoutMode, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
 
 export default class HelloWorld extends React.Component<IHelloWorldProps, any> {

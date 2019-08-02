@@ -5,7 +5,6 @@ import { BaseClientSideWebPart, PropertyPaneSlider } from '@microsoft/sp-webpart
 import {
   IPropertyPaneConfiguration,
   PropertyPaneTextField,
-  PropertyPaneDropdown,
   IPropertyPaneDropdownOption
 } from '@microsoft/sp-property-pane';
 
@@ -15,8 +14,7 @@ import { IHelloWorldProps } from './components/IHelloWorldProps';
 import { IODataList } from '@microsoft/sp-odata-types';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { PropertyFieldListPicker, PropertyFieldListPickerOrderBy } from '@pnp/spfx-property-controls/lib/PropertyFieldListPicker';
-import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
-
+import pnp,{ sp } from 'sp-pnp-js';
 
 export interface IHelloWorldWebPartProps {
   siteurl: string;
@@ -30,14 +28,6 @@ export interface IHelloWorldWebPartProps {
 export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorldWebPartProps> {
   private dropdownOptions: IPropertyPaneDropdownOption[];
   private listsFetched: boolean;
-  // private reactprops = {
-  //   siteurl: this.properties.siteurl,
-  //   slidervalue: this.properties.slider,
-  //   filtervalue: this.properties.odatafilter,
-  //   spWebUrl: this.context.pageContext.web.absoluteUrl,
-  //   spHttpClient: this.context.spHttpClient,
-  //   listdropdown: this.properties.listdropdown
-  // }
   public render(): void {
     const element: React.ReactElement<IHelloWorldProps> = React.createElement(
       HelloWorld, 
@@ -62,21 +52,22 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
   protected get dataVersion(): Version {
     return Version.parse('1.0');
   }
-  private fetchLists(url: string): Promise<any> {
-    return this.context.spHttpClient.get(url, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
-      if (response.ok) {
+  private fetchLists(): Promise<any> {
+    // return this.context.spHttpClient.get(url, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
+    return pnp.sp.web.lists.filter('Hidden eq false').get().then((response)=> { 
+    if (response.ok) {
         return response.json();
       } else {
-        console.log("WARNING - failed to hit URL " + url + ". Error = " + response.statusText);
+        console.log("WARNING - failed to hit URL. Error = " + response.statusText);
         return null;
       }
     });
   }
 
   private fetchOptions(): Promise<IPropertyPaneDropdownOption[]> {
-    var url = this.context.pageContext.web.absoluteUrl + `/_api/web/lists?$filter=Hidden eq false`;
+    // var url = this.context.pageContext.web.absoluteUrl + `/_api/web/lists?$filter=Hidden eq false`;
     // var url = `https://cupcuper.sharepoint.com/sites/dev1/_api/web/lists?$filter=Hidden%20eq%20false`;
-    return this.fetchLists(url).then((response) => {
+    return this.fetchLists().then((response) => {
       var options: Array<IPropertyPaneDropdownOption> = new Array<IPropertyPaneDropdownOption>();
       response.value.map((list: IODataList) => {
         console.log("Found list with title = " + list.Title);
@@ -90,12 +81,13 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
   // protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
 
   // }
+  // import(/* webpackChunkName: "strings" */ 'HelloWorldWebPartStrings').then((strings)=>{
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+    
     if (!this.listsFetched) {
       this.fetchOptions().then((response) => {
         this.dropdownOptions = response;
         this.listsFetched = true;
-        // now refresh the property pane, now that the promise has been resolved..
         this.onDispose();
       });
     }
@@ -158,4 +150,5 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
       ]
     };
   }
+  // });
 }
